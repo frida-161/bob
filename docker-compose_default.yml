@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - photo_uploads:/images
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://username:thisisasavepassword@db:5432/databasename
+      UPLOAD_DIR : /images
+    networks:
+      - app-network
+
+  db:
+    image: postgis/postgis:13-3.1
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: thisisasavepassword
+      POSTGRES_DB: databasename
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  photo_uploads:
