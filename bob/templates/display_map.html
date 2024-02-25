@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 400px; }
+        .popup-image { max-width: 200px; max-height: 200px; }
+    </style>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 50px;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .detective-img {
+            width: 200px;
+            border-radius: 50%;
+            margin-bottom: 20px;
+        }
+        .btn-container {
+            margin-top: 30px;
+        }
+        .btn {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Locations Map</h1>
+        <div id="map"></div>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([0, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        // Fetch locations from API endpoint
+        fetch('/api/locations')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(location => {
+                    var popupContent = `<b>${location.comment}</b><br>`;
+                    if (location.photo) {
+                        popupContent += `<img src="${location.photo}" class="popup-image" /><br>`;
+                    }
+                    L.marker([location.latitude, location.longitude]).addTo(map)
+                        .bindPopup(popupContent);
+                });
+            });
+    </script>
+</body>
+</html>
