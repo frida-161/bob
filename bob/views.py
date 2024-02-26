@@ -23,7 +23,8 @@ def add_location():
     db.session.add(new_location)
     db.session.commit()
 
-    photo.save(str(Path(app.config['UPLOAD_DIR']) / photo.filename))
+    if photo.filename:
+        photo.save(str(Path(app.config['UPLOAD_DIR']) / photo.filename))
 
     return redirect(url_for('views.index'))
 
