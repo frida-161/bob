@@ -48,15 +48,30 @@
         fetch('/api/locations')
             .then(response => response.json())
             .then(data => {
-                data.forEach(location => {
-                    var popupContent = `<b>${location.comment}</b><br>`;
-                    if (location.photo) {
-                        popupContent += `<img src="${location.photo}" class="popup-image" /><br>`;
-                    }
-                    L.marker([location.latitude, location.longitude]).addTo(map)
-                        .bindPopup(popupContent);
-                });
-            });
+                if (data.length > 0) {
+                    // Extract latitude and longitude from each location
+                    var coordinates = data.map(location => [location.latitude, location.longitude]);
+
+                    // Calculate bounding box of coordinates
+                    var bounds = L.latLngBounds(coordinates);
+
+                    // Set map view to cover bounding box
+                    map.fitBounds(bounds);
+                    
+                    // Add markers for each location
+                    data.forEach(location => {
+                        var popupContent = `<b>${location.comment}</b><br>`;
+                        if (location.photo) {
+                            popupContent += `<img src="${location.photo}" class="img-fluid" /><br>`;
+                        }
+                        L.marker([location.latitude, location.longitude]).addTo(map)
+                            .bindPopup(popupContent);
+                    });
+                } else {
+                    // If no locations are available, center the map on a default location
+                    map.setView([0, 0], 2);
+                }
+        });
     </script>
 </body>
 </html>
