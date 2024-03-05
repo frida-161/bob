@@ -8,9 +8,6 @@ ENV PYTHONUNBUFFERED 1
 # Set the working directory in the container
 WORKDIR /usr/src/
 
-# Install dependencies
-COPY ./bob/requirements.txt ./bob/
-
 # Install system dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -19,6 +16,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+COPY ./bob/requirements.txt ./bob/
 RUN pip install --no-cache-dir -r ./bob/requirements.txt
 
 # Copy the current directory contents into the container at /usr/src/app
