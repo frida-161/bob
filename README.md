@@ -1,61 +1,38 @@
-# Bob
+# Bob - Location Archiver
 
-Bob description
+Bob is a Flask web application that allows users to upload locations with comments and photos, which are stored in a PostGIS database. Users can view their uploaded locations on an interactive map.
 
-## Quick Start
+## Functionality
 
-Run the application:
+- Users can upload locations along with comments and optional photos.
+- Uploaded locations are displayed on an interactive map using Leaflet.
+- The application is containerized using Docker and can be easily deployed using Docker Compose.
 
-    make run
+## How to Run
 
-And open it in the browser at [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
+### Prerequisites
 
-## Prerequisites
+- Docker
+- Docker Compose
 
-Python >=3.7
+### Steps
 
-## Development environment
+1. Clone the repository:
 
- - `make venv`: creates a virtualenv with dependencies and this application
-   installed (latter is installed in [development mode](http://setuptools.readthedocs.io/en/latest/setuptools.html#development-mode))
+   ```bash
+   git clone https://github.com/frida-161/bob.git
+   ```
 
- - `make run`: runs a development server in debug mode (changes in source code
-   are reloaded automatically)
+2. Navigate to the project directory:
 
- - `make format`: reformats code
+   ```bash
+   cd bob
+   ```
 
- - `make lint`: runs flake8
+3. Build and start the Docker containers using Docker Compose:
 
- - `make mypy`: runs type checks by mypy
+   ```bash
+   docker-compose up --build
+   ```
 
- - `make test`: runs tests (see also: [Testing Flask Applications](https://flask.palletsprojects.com/en/2.1.x/testing/))
-
- - `make dist`: creates a wheel distribution (will run tests first)
-
- - `make clean`: removes virtualenv and build artifacts
-
- - add application dependencies in `pyproject.toml` under `project.dependencies`;
-   add development dependencies under `project.optional-dependencies.*`
-
- - to modify configuration, pass it in environment variables prefixed with
-   `FLASK_`; e.g., `FLASK_DEBUG`, etc.;
-
-## Configuration
-
-Default configuration is loaded from `bob.default_settings` and can be
-overriden by environment variables with a `FLASK_` prefix. See
-[Configuring from Environment Variables](https://flask.palletsprojects.com/en/2.1.x/config/#configuring-from-environment-variables).
-
-Consider using
-[dotenv](https://flask.palletsprojects.com/en/2.1.x/cli/#environment-variables-from-dotenv).
-
-## Deployment
-
-See [Deploying to Production](https://flask.palletsprojects.com/en/2.1.x/deploying/).
-
-You may use the distribution (`make dist`) to publish it to a package index,
-deliver to your server, or copy in your `Dockerfile`, and insall it with `pip`.
-
-You must set a
-[SECRET_KEY](https://flask.palletsprojects.com/en/2.1.x/tutorial/deploy/#configure-the-secret-key)
-in production to a secret and stable value.
+4. Once the containers are up and running, you can access the application in your web browser at `localhost:5000`
