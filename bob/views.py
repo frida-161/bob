@@ -1,15 +1,17 @@
 from pathlib import Path
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_from_directory
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    url_for,
+    jsonify,
+    send_from_directory
+)
 from bob.models import Location
 from bob import db, app
 
 views_blueprint = Blueprint('views', __name__)
-
-
-@views_blueprint.route('/')
-def index():
-    locations = Location.query.all()
-    return render_template('index.html', locations=locations)
 
 
 @views_blueprint.route('/add_location', methods=['POST'])
@@ -19,14 +21,16 @@ def add_location():
     comment = request.form['comment']
     photo = request.files['photo']
 
-    new_location = Location(latitude=latitude, longitude=longitude, comment=comment, photo=photo.filename)
+    new_location = Location(
+        latitude=latitude, longitude=longitude,
+        comment=comment, photo=photo.filename)
     db.session.add(new_location)
     db.session.commit()
 
     if photo.filename:
         photo.save(str(Path(app.config['UPLOAD_DIR']) / photo.filename))
 
-    return redirect(url_for('views.index'))
+    return redirect(url_for('views.display_map'))
 
 
 @views_blueprint.route('/upload_location')
@@ -35,6 +39,7 @@ def upload_location():
 
 
 @views_blueprint.route('/display_map')
+@views_blueprint.route('/')
 def display_map():
     locations = Location.query.all()
     return render_template('display_map.html', locations=locations)

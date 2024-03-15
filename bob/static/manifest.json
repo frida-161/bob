@@ -1,0 +1,16 @@
+{
+    "name": "Recherche und Archiv",
+    "short_name": "Bob",
+    "icons": [
+        {
+            "src": "/static/logo.svg",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#cddc39",
+    "theme_color": "#cddc39",
+    "orientation": "portrait"
+}

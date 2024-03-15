@@ -3,3 +3,14 @@
     font-size: 1.3em;
     font-family: Arial, sans-serif;
 }
+
+#map {
+    height: 700px;
+    margin-top: 10px;
+}
+
+.brand-logo>img {
+    height: 64px;
+    padding: 0px;
+    width: auto; 
+}

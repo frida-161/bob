@@ -1,83 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Location</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #map { height: 400px; }
-    </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <h1 class="mb-4">Add Location</h1>
-        <div id="map" class="mb-4"></div>
-        <form id="locationForm" action="/add_location" method="post" enctype="multipart/form-data">
-            <div class="form-group" hidden>
+{% extends 'layout.html' %}
+{% block title %}
+Eintrag hinzufügen
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div id="map" class="col s12 m6 l8 z-depth-2"></div>
+    <form class="col s12 m6 l4" id="locationForm" action="/add_location" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="input-field col s12" hidden>
+                <input id="latitude" type="text" class="validate" name="latitude" required>
                 <label for="latitude">Latitude</label>
-                <input type="text" class="form-control" id="latitude" name="latitude" required>
             </div>
-            <div class="form-group" hidden>
+            <div class="input-field col s12" hidden>
+                <input id="longitude" type="text" class="validate" name="longitude" required>
                 <label for="longitude">Longitude</label>
-                <input type="text" class="form-control" id="longitude" name="longitude" required>
             </div>
-            <div class="form-group">
+            <div class="input-field col s12">
+                <textarea id="comment" class="materialize-textarea" name="comment" required></textarea>
                 <label for="comment">Comment</label>
-                <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
             </div>
-            <div class="form-group">
-                <label for="photo">Photo</label>
-                <input type="file" class="form-control-file" id="photo" name="photo">
+            <div class="file-field input-field col s12">
+                <div class="btn">
+                    <span>Photo</span>
+                    <input type="file" name="photo">
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
+        </div>
+        <button class="btn waves-effect waves-light" type="submit">Submit</button>
+    </form>
+</div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    var map = L.map('map').setView([0, 0], 2);
 
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script>
-        var map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    var marker = L.marker([0, 0], { draggable: true }).addTo(map);
 
-        var marker = L.marker([0, 0], { draggable: true }).addTo(map);
+    // Update latitude and longitude inputs when marker is dragged
+    marker.on('dragend', function(event){
+        var position = marker.getLatLng();
+        document.getElementById('latitude').value = position.lat.toFixed(6);
+        document.getElementById('longitude').value = position.lng.toFixed(6);
+    });
 
-        // Update latitude and longitude inputs when marker is dragged
-        marker.on('dragend', function(event){
-            var position = marker.getLatLng();
-            document.getElementById('latitude').value = position.lat.toFixed(6);
-            document.getElementById('longitude').value = position.lng.toFixed(6);
-        });
+    // Update marker position when latitude or longitude input changes
+    document.getElementById('latitude').addEventListener('input', function() {
+        marker.setLatLng([parseFloat(this.value), marker.getLatLng().lng]);
+    });
 
-        // Update marker position when latitude or longitude input changes
-        document.getElementById('latitude').addEventListener('input', function() {
-            marker.setLatLng([parseFloat(this.value), marker.getLatLng().lng]);
-        });
+    document.getElementById('longitude').addEventListener('input', function() {
+        marker.setLatLng([marker.getLatLng().lat, parseFloat(this.value)]);
+    });
 
-        document.getElementById('longitude').addEventListener('input', function() {
-            marker.setLatLng([marker.getLatLng().lat, parseFloat(this.value)]);
-        });
-
-        // Function to get user's location
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var userLocation = [position.coords.latitude, position.coords.longitude];
-                    map.setView(userLocation, 12);
-                    marker.setLatLng(userLocation);
-                    document.getElementById('latitude').value = position.coords.latitude;
-                    document.getElementById('longitude').value = position.coords.longitude;
-                });
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
+    // Function to get user's location
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userLocation = [position.coords.latitude, position.coords.longitude];
+                map.setView(userLocation, 12);
+                marker.setLatLng(userLocation);
+                document.getElementById('latitude').value = position.coords.latitude;
+                document.getElementById('longitude').value = position.coords.longitude;
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
         }
+    }
 
-        // Call getLocation() when the page loads
-        window.onload = getLocation;
-    </script>
-</body>
-</html>
+    // Call getLocation() when the page loads
+    window.onload = getLocation;
+</script>
+{% endblock %}
