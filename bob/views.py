@@ -22,7 +22,7 @@ def add_location():
     comment = request.form['comment']
     photo = request.files['photo']
 
-    ufilename = str(uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org'))
+    ufilename = str(uuid.uuid4())
     new_location = Location(
         latitude=latitude, longitude=longitude,
         comment=comment, photo=ufilename)
