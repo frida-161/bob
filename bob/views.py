@@ -22,15 +22,18 @@ def add_location():
     comment = request.form['comment']
     photo = request.files['photo']
 
-    ufilename = str(uuid.uuid4())
+    ufilename = None
+    if photo.filename:
+        ufilename = str(uuid.uuid4())
+        photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
+
     new_location = Location(
         latitude=latitude, longitude=longitude,
         comment=comment, photo=ufilename)
+
     db.session.add(new_location)
     db.session.commit()
 
-    if photo.filename:
-        photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
 
     return redirect(url_for('views.display_map'))
 
@@ -49,13 +52,18 @@ def display_map():
 
 @views_blueprint.route('/api/locations')
 def get_locations():
+    def get_url(location):
+        if location.photo:
+            return url_for("views.get_images", filename=location.photo)
+        return None
+
     locations = Location.query.all()
     location_data = [
         {
             "latitude": location.latitude,
             "longitude": location.longitude,
             "comment": location.comment,
-            "photo": url_for("views.get_images", filename=location.photo)
+            "photo": get_url(location)
         } for location in locations]
     return jsonify(location_data)
 
