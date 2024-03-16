@@ -2,7 +2,6 @@
 __pycache__/
 
 # Docker
-docker-compose.yml
 
 # Files created by this set up:
 venv/
