@@ -10,6 +10,7 @@ from flask import (
 )
 from bob.models import Location
 from bob import db, app
+import uuid
 
 views_blueprint = Blueprint('views', __name__)
 
@@ -21,14 +22,15 @@ def add_location():
     comment = request.form['comment']
     photo = request.files['photo']
 
+    ufilename = str(uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org'))
     new_location = Location(
         latitude=latitude, longitude=longitude,
-        comment=comment, photo=photo.filename)
+        comment=comment, photo=ufilename)
     db.session.add(new_location)
     db.session.commit()
 
     if photo.filename:
-        photo.save(str(Path(app.config['UPLOAD_DIR']) / photo.filename))
+        photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
 
     return redirect(url_for('views.display_map'))
 
