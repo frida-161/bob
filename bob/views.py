@@ -6,11 +6,13 @@ from flask import (
     redirect,
     url_for,
     jsonify,
-    send_from_directory
+    send_from_directory,
+    abort
 )
 from bob.models import Location
 from bob import db, app
 import uuid
+import magic
 
 views_blueprint = Blueprint('views', __name__)
 
@@ -24,9 +26,12 @@ def add_location():
 
     ufilename = None
     if photo.filename:
-        ufilename = str(uuid.uuid4())
-        photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
-
+        if(magic.from_buffer(photo.stream.read(1024), mime=True).startswith("image")):
+            ufilename = str(uuid.uuid4())
+            photo.stream.seek(0)
+            photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
+        else:
+            return abort(415)
     new_location = Location(
         latitude=latitude, longitude=longitude,
         comment=comment, photo=ufilename)
