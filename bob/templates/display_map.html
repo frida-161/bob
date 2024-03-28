@@ -2,10 +2,11 @@
 {% block title %}
 Übersichtskarte
 {% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='large_map.css') }}">
+{% endblock %}
 {% block content %}
-<div class="row">
-    <div id="map" class="col s12"></div>
-</div>
+<div id="map"></div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>

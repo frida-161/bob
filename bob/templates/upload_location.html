@@ -2,6 +2,9 @@
 {% block title %}
 Eintrag hinzufügen
 {% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='small_map.css') }}">
+{% endblock %}
 {% block content %}
 <div class="row">
     <div id="map" class="col s12 m6 l8 z-depth-2"></div>

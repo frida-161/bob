@@ -4,24 +4,9 @@
     font-family: Arial, sans-serif;
 }
 
-#map {
-    margin-top: 10px;
-}
 
 .brand-logo>img {
     height: 64px;
     padding: 0px;
     width: auto; 
 }
-
-@media (orientation: landscape) {
-    #map {
-        height: 700px;
-    }
-  }
-
-@media (orientation: portrait) {
-    #map {
-        height: 250px;
-    }
-  }

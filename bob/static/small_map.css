@@ -1,0 +1,19 @@
+#map {
+    margin-top: 10px;
+}
+
+@media (orientation: landscape) {
+    #map {
+        height: 700px;
+    }
+}
+
+@media (orientation: portrait) {
+    #map {
+        height: 250px;
+    }
+}
+
+
+
+
