@@ -10,3 +10,9 @@
     padding: 0px;
     width: auto; 
 }
+
+@media (orientation: portrait) {
+    .leaflet-control-zoom {
+        visibility: hidden;
+    }
+}

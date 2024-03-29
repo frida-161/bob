@@ -17,34 +17,19 @@
     {% endblock %}
 </head>
 <body>
-    <!-- Navbar -->
-    <div class="navbar-fixed">
-    <nav>
-        <div class="nav-wrapper lime ">
-            <a href="#" class="brand-logo">
-                <img src="{{ url_for('static', filename='logo_nobg.png')}}"></img>
-            </a>
-            <a href="#" data-target="mobile-demo" class="sidenav-trigger">
-                <i class="material-icons">menu</i>
-            </a>
-            <ul class="right hide-on-med-and-down">
-                <li><a href="{{ url_for('views.display_map')}}" class="text-black">Display Map</a></li>
-                <li><a href="{{ url_for('views.upload_location')}}">Upload Location</a></li>
-            </ul>
-        </div>
-    </nav>
-    </div>
-    <ul class="sidenav" id="mobile-demo">
-        <li><a href="{{ url_for('views.display_map')}}" class="text-black">Display Map</a></li>
-        <li><a href="{{ url_for('views.upload_location')}}">Upload Location</a></li>
-    </ul>
-
-    <!-- Content -->
-    <div class="container">
+    <div id="map-container" style="position: relative; height: 100%;">
         {% block content %}
         {% endblock %}
+        <div class="fixed-action-btn" style="position: absolute; bottom: 45px; right: 24px;">
+            <a class="btn-floating btn-large lime sidenav-trigger" data-target="mobile-demo">
+                <i class="large material-icons">menu</i>
+            </a>
+        </div>
+        <ul class="sidenav" id="mobile-demo">
+            <li><a href="{{ url_for('views.display_map')}}" class="text-black">Display Map</a></li>
+            <li><a href="{{ url_for('views.upload_location')}}">Upload Location</a></li>
+        </ul>
     </div>
-
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
@@ -60,12 +45,11 @@
             });
         }
     </script>
-
     <!-- mobile nav-->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             var elems = document.querySelectorAll('.sidenav');
-            var instances = M.Sidenav.init(elems);
+            var instances = M.Sidenav.init(elems,{"edge": "right"});
         });
     </script>
 </body>
