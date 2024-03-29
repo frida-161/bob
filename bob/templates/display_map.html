@@ -10,38 +10,53 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    var map = L.map('map').setView([0, 0], 2);
+    var map = L.map('map').setView([49.7596, 6.6439], 13); // Initialize map with a dummy location
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    function onLocationFound(e) {
+        var radius = e.accuracy / 2; // e.accuracy is in meters
+
+        L.circle(e.latlng, radius).addTo(map);
+
+        map.setView(e.latlng, 13); // Set the map extent to the user's location
+    }
+
+    function onLocationError(e) {
+        alert(e.message);
+    }
+
+    map.on('locationfound', onLocationFound);
+    map.on('locationerror', onLocationError);
+
+    // This method watches the user's location, updates happen based on device movement and settings
+    navigator.geolocation.watchPosition((position) => {
+        map.fire('locationfound', {
+            latlng: [position.coords.latitude, position.coords.longitude],
+            accuracy: position.coords.accuracy
+        });
+    }, onLocationError, {
+        enableHighAccuracy: true,
+        maximumAge: 10000,
+        timeout: 5000
+    });
 
     // Fetch locations from API endpoint
     fetch('/api/locations')
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
-                // Extract latitude and longitude from each location
-                var coordinates = data.map(location => [location.latitude, location.longitude]);
-
-                // Calculate bounding box of coordinates
-                var bounds = L.latLngBounds(coordinates);
-
-                // Set map view to cover bounding box
-                map.fitBounds(bounds);
-                
                 // Add markers for each location
                 data.forEach(location => {
-                    var popupContent = `<b>${location.comment}</b><br>`;
+                    var marker = L.marker([location.latitude, location.longitude]).addTo(map)
                     if (location.photo) {
-                        popupContent += `<img src="${location.photo}" class="img-fluid" /><br>`;
+                        marker.on('click', function() {
+                            window.location.href = location.photo;
+                        });
                     }
-                    L.marker([location.latitude, location.longitude]).addTo(map)
-                        .bindPopup(popupContent);
                 });
-            } else {
-                // If no locations are available, center the map on a default location
-                map.setView([0, 0], 2);
             }
     });
 </script>
