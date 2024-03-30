@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+{% block title %}
+Location {{location.id}}
+{% endblock %}
+{% block content %}
+{% if location.photo %}
+<img class="responsive-img" src='{{ url_for("views.get_images", filename=location.photo) }}'>
+{% endif %}
+
+{{ location.comment }}
+{% endblock %}

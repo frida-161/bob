@@ -51,11 +51,9 @@
                 // Add markers for each location
                 data.forEach(location => {
                     var marker = L.marker([location.latitude, location.longitude]).addTo(map)
-                    if (location.photo) {
-                        marker.on('click', function() {
-                            window.location.href = location.photo;
-                        });
-                    }
+                    marker.on('click', function() {
+                        window.location.href = location.link
+                    });
                 });
             }
     });

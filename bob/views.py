@@ -55,12 +55,16 @@ def display_map():
     return render_template('display_map.html', locations=locations)
 
 
+@views_blueprint.route('/location/<int:id>')
+def get_location(id):
+    location = Location.query.get(id)
+    if not location:
+        return abort(404)
+    return render_template('location_detail.html', location=location)
+
+
 @views_blueprint.route('/api/locations')
 def get_locations():
-    def get_url(location):
-        if location.photo:
-            return url_for("views.get_images", filename=location.photo)
-        return None
 
     locations = Location.query.all()
     location_data = [
@@ -68,7 +72,7 @@ def get_locations():
             "latitude": location.latitude,
             "longitude": location.longitude,
             "comment": location.comment,
-            "photo": get_url(location)
+            "link": url_for("views.get_location", id = location.id)
         } for location in locations]
     return jsonify(location_data)
 
