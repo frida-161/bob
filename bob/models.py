@@ -2,22 +2,37 @@ from bob import db
 from geoalchemy2.elements import WKTElement
 from geoalchemy2 import Geometry
 
+# Association table for the many-to-many relationship between Location and Tag
+location_tag = db.Table('location_tag',
+    db.Column('location_id', db.Integer, db.ForeignKey('locations.id'), primary_key=True),
+    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'), primary_key=True)
+)
 
 class Location(db.Model):
     __tablename__ = 'locations'
-
     id = db.Column(db.Integer, primary_key=True)
+    photo = db.Column(db.String)
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-    comment = db.Column(db.String(255))
-    photo = db.Column(db.String(255))
+    # Use server default
+    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    removed_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('types.id'))
+    comment = db.Column(db.String)
+
+    tags = db.relationship('Tag', secondary='location_tag', back_populates='locations')
+    user = db.relationship('User', foreign_keys=[user_id], backref=db.backref('locations_added', lazy='dynamic'))
+    removed_by = db.relationship('User', foreign_keys=[removed_id], backref=db.backref('locations_removed', lazy='dynamic'))
+    loc_type = db.relationship('Type', back_populates='locations')
+
     # Add a geometry field to store the spatial data (point)
     geom = db.Column(Geometry('POINT'))
 
-    def __init__(self, latitude, longitude, comment, photo):
+    def __init__(self, latitude, longitude, photo):
+        # all we need to initialize a new location
         self.latitude = latitude
         self.longitude = longitude
-        self.comment = comment
         self.photo = photo
         # Generate point data from latitude and longitude
         self.geom = self.generate_point()
@@ -26,3 +41,37 @@ class Location(db.Model):
         # Construct a point geometry from latitude and longitude
         point_wkt = f'POINT({self.longitude} {self.latitude})'
         return WKTElement(point_wkt, srid=4326)
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    password = db.Column(db.String)
+    # Use server default
+    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
+    role = db.Column(db.String)
+    invites = db.relationship('Invite', backref='user', lazy=True)
+
+class Invite(db.Model):
+    __tablename__ = 'invites'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    # Use server default
+    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
+    revoked = db.Column(db.Boolean)
+    exp_date = db.Column(db.DateTime)
+    user_limit = db.Column(db.Integer)
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    locations = db.relationship('Location', secondary='location_tag', back_populates='tags')
+
+class Type(db.Model):
+    __tablename__ = 'types'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    descr = db.Column(db.String)  # Assuming 'descr' stands for 'description'
+    locations = db.relationship("Location", back_populates="loc_type")

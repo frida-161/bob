@@ -34,7 +34,7 @@ def add_location():
             return abort(415)
     new_location = Location(
         latitude=latitude, longitude=longitude,
-        comment=comment, photo=ufilename)
+        photo=ufilename)
 
     db.session.add(new_location)
     db.session.commit()
