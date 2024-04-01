@@ -13,6 +13,7 @@ from bob.models import Location
 from bob import db, app
 import uuid
 import magic
+import flask_login
 
 views_blueprint = Blueprint('views', __name__)
 
@@ -80,3 +81,29 @@ def get_locations():
 @views_blueprint.route('/images/<string:filename>')
 def get_images(filename):
     return send_from_directory(app.config['UPLOAD_DIR'], filename)
+
+@views_blueprint.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return '''
+               <form action='login' method='POST'>
+                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='password' name='password' id='password' placeholder='password'/>
+                <input type='submit' name='submit'/>
+               </form>
+               '''
+
+    email = request.form['email']
+    if email in users and request.form['password'] == users[email]['password']:
+        user = User()
+        user.id = email
+        flask_login.login_user(user)
+        return redirect(url_for('protected'))
+
+    return 'Bad login'
+
+
+@views_blueprint.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.id
