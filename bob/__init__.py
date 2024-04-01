@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+import flask_login
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -33,3 +34,37 @@ with app.app_context():
     db.create_all()
     if not Path(app.config['UPLOAD_DIR']).exists():
         (Path(app.config['UPLOAD_DIR'])).mkdir(parents=True)
+
+# Set up login manager
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+
+users = {'foo@bar.tld': {'password': 'secret'}}
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(email):
+    if email not in users:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    email = request.form.get('email')
+    if email not in users:
+        return
+
+    user = User()
+    user.id = email
+    return user
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
