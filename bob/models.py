@@ -42,27 +42,6 @@ class Location(db.Model):
         point_wkt = f'POINT({self.longitude} {self.latitude})'
         return WKTElement(point_wkt, srid=4326)
 
-
-class User(db.Model):
-    __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    password = db.Column(db.String)
-    # Use server default
-    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
-    role = db.Column(db.String)
-    invites = db.relationship('Invite', backref='user', lazy=True)
-
-class Invite(db.Model):
-    __tablename__ = 'invites'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    # Use server default
-    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
-    revoked = db.Column(db.Boolean)
-    exp_date = db.Column(db.DateTime)
-    user_limit = db.Column(db.Integer)
-
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
@@ -75,3 +54,27 @@ class Type(db.Model):
     name = db.Column(db.String)
     descr = db.Column(db.String)  # Assuming 'descr' stands for 'description'
     locations = db.relationship("Location", back_populates="loc_type")
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    password = db.Column(db.String)
+    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
+    role = db.Column(db.String)
+    # The invite that this user got invited with
+    invite_id = db.Column(db.Integer, db.ForeignKey('invites.id'))
+    # The invites that this user has issued
+    invites = db.relationship('Invite', backref='issued_by', lazy=True, foreign_keys=[invite_id])
+
+class Invite(db.Model):
+    __tablename__ = 'invites'
+    id = db.Column(db.Integer, primary_key=True)
+    # The id of the user that issued this  invite
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
+    revoked = db.Column(db.Boolean)
+    exp_date = db.Column(db.DateTime)
+    user_limit = db.Column(db.Integer)
+    # The users that were invited by this invite
+    users = db.relationship('User', backref='invited_by', lazy=True, foreign_keys=[user_id])
