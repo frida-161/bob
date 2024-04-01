@@ -7,7 +7,36 @@
 {% endblock %}
 {% block content %}
 <div id="map" style="height: 100vh;"></div>
+<form id="locationForm" action="{{ url_for('views.display_map')}}" method="post" enctype="multipart/form-data">
+        <div class="input-field col s12" hidden>
+            <input id="latitude" type="text" class="validate" name="latitude" required>
+            <label for="latitude">Latitude</label>
+        </div>
+        <div class="input-field col s12" hidden>
+            <input id="longitude" type="text" class="validate" name="longitude" required>
+            <label for="longitude">Longitude</label>
+        </div>
+        <div class="fixed-action-btn" style="position: absolute; bottom: 45px; right: 24px;">
+            <div class="btn-floating btn-large lime file-field" >
+                <i class="large material-icons">camera</i>
+                <input id="photoField" type="file" name="photo" accept="image/jpg, image/jpeg, image/png" capture="camera" >
+            </div>
+        </div>
+        <div class="file-path-wrapper" hidden>
+            <input class="file-path validate" type="text">
+        </div>
+<button class="btn waves-effect waves-light" type="submit">Submit</button>
+</form>
+<script>
+document.getElementById('photoField').addEventListener('change', function() {
+  // Check if the field is not empty
+  if (this.value.trim() !== '') {
+    // Submit the form
+    document.getElementById('locationForm').submit();
+  }
+});
 
+</script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
     var map = L.map('map').setView([49.7596, 6.6439], 13); // Initialize map with a dummy location
@@ -20,6 +49,8 @@
         var radius = e.accuracy / 2; // e.accuracy is in meters
 
         L.circle(e.latlng, radius).addTo(map);
+        document.getElementById('latitude').value = e.latlng[0];
+        document.getElementById('longitude').value = e.latlng[1];
 
         map.setView(e.latlng, 13); // Set the map extent to the user's location
     }

@@ -17,12 +17,16 @@ import magic
 views_blueprint = Blueprint('views', __name__)
 
 
-@views_blueprint.route('/add_location', methods=['POST'])
-def add_location():
+@views_blueprint.route('/', methods=['GET','POST'])
+def display_map():
+    if request.method == 'GET':
+        return render_template('display_map.html')
+    print("hi")
     latitude = request.form['latitude']
     longitude = request.form['longitude']
-    comment = request.form['comment']
     photo = request.files['photo']
+
+    print(":)")
 
     ufilename = None
     if photo.filename:
@@ -39,20 +43,9 @@ def add_location():
     db.session.add(new_location)
     db.session.commit()
 
+    print("pong")
 
-    return redirect(url_for('views.display_map'))
-
-
-@views_blueprint.route('/upload_location')
-def upload_location():
-    return render_template('upload_location.html')
-
-
-@views_blueprint.route('/display_map')
-@views_blueprint.route('/')
-def display_map():
-    locations = Location.query.all()
-    return render_template('display_map.html', locations=locations)
+    return redirect(url_for('views.get_location',id=new_location.id))
 
 
 @views_blueprint.route('/location/<int:id>')
