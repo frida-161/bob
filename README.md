@@ -36,3 +36,17 @@ Bob is a Flask web application that allows users to upload locations with commen
    ```
 
 4. Once the containers are up and running, you can access the application in your web browser at `localhost:5000`
+
+## Drop Database
+
+1. Stop all containers
+`docker-compose down`
+
+2. Remove the database volume
+`docker volume rm bob_postgres-data`
+
+3. Start the database. Kill it once it is finished
+`docker-compose up db`
+
+4. Start everything as usual
+`docker-compose up --build -d`
