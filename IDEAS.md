@@ -15,16 +15,6 @@
 * start generating the data set as early as possible → deploy to a beta test group ASAP → focus on [[#UX]] and [[#data model]]
 * make a public map of areas that are less safe
 
-## Todo
-
-There are always things to do :)
-- [x] implement new model
-- [ ] add user authentication
-- [ ] finalize data model
-- [ ] setup a simplified view to add locations
-- [ ] think about hosting
-- [ ] polish the map view
-- [ ] fix glitches in the map view
 
 
 ## data model
