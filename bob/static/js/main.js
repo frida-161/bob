@@ -47,3 +47,13 @@ fetch('/api/locations')
             });
         }
 });
+
+document.getElementById('photoField').addEventListener('change', function() {
+  // Check if the field is not empty
+  if (this.value.trim() !== '') {
+    // Submit the form
+    document.getElementById('locationForm').submit();
+    // reset form
+    this.value = '';
+  }
+});

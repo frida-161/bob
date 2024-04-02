@@ -27,18 +27,7 @@
         </div>
 <button class="btn waves-effect waves-light" type="submit">Submit</button>
 </form>
-<script>
-document.getElementById('photoField').addEventListener('change', function() {
-  // Check if the field is not empty
-  if (this.value.trim() !== '') {
-    // Submit the form
-    document.getElementById('locationForm').submit();
-    // reset form
-    this.value = '';
-  }
-});
 
-</script>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/main.js')}}"></script>
 {% endblock %}
