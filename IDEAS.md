@@ -15,7 +15,13 @@
 * start generating the data set as early as possible → deploy to a beta test group ASAP → focus on [[#UX]] and [[#data model]]
 * make a public map of areas that are less safe
 
+## data safety
 
+After a productive discussion we came up with a way to safeguard the users location data while still being able to moderate potential malicious content.
+
+- store the location linked with the users id
+- optional: calculate stats for gamification
+- run a daily job to delete all links between user and location for locations that are older then *n* days (for example after 1 week)
 
 ## data model
 
