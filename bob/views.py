@@ -15,36 +15,37 @@ import uuid
 import magic
 import flask_login
 
+import time
+
 views_blueprint = Blueprint('views', __name__)
 
 
 @views_blueprint.route('/', methods=['GET','POST'])
 def display_map():
+    a = time.time()
     if request.method == 'GET':
         return render_template('display_map.html')
-    print("hi")
     latitude = request.form['latitude']
     longitude = request.form['longitude']
     photo = request.files['photo']
 
-    print(":)")
+    # make sure we have a file and a location
+    if not (latitude and longitude and photo.filename):
+        return abort(400)
 
-    ufilename = None
-    if photo.filename:
-        if(magic.from_buffer(photo.stream.read(1024), mime=True).startswith("image")):
-            ufilename = str(uuid.uuid4())
-            photo.stream.seek(0)
-            photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
-        else:
-            return abort(415)
+    # check if the file is an image using magic
+    if not (magic.from_buffer(photo.stream.read(1024), mime=True).startswith("image")):
+        return abort(415)
+
+    ufilename = str(uuid.uuid4())
+    photo.stream.seek(0)
+    photo.save(str(Path(app.config['UPLOAD_DIR']) / ufilename))
     new_location = Location(
         latitude=latitude, longitude=longitude,
         photo=ufilename)
 
     db.session.add(new_location)
     db.session.commit()
-
-    print("pong")
 
     return redirect(url_for('views.get_location',id=new_location.id))
 
@@ -80,13 +81,14 @@ def login():
     if request.method == 'GET':
         return '''
                <form action='login' method='POST'>
-                <input type='text' name='email' id='email' placeholder='email'/>
+                <input type='text' name='username' id='username' placeholder='username'/>
                 <input type='password' name='password' id='password' placeholder='password'/>
                 <input type='submit' name='submit'/>
                </form>
                '''
 
-    email = request.form['email']
+    users = User
+    email = request.form['username']
     if email in users and request.form['password'] == users[email]['password']:
         user = User()
         user.id = email
@@ -99,4 +101,4 @@ def login():
 @views_blueprint.route('/protected')
 @flask_login.login_required
 def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
+    return 'Logged in as: ' + flask_login.current_useusername

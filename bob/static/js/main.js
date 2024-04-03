@@ -64,7 +64,13 @@ document.getElementById('photoField').addEventListener('change', function() {
     // Check if the field is not empty.
     if (this.value.trim() !== '') {
         // Submit the 'locationForm' form.
-        document.getElementById('locationForm').submit();
+        if (document.getElementById('latitude').value.trim() == '' || 
+            document.getElementById('longitude').value.trim() == ''
+        ){
+            alert('position not known!');
+        } else {
+            document.getElementById('locationForm').submit();
+        }
         // Reset the form field.
         this.value = '';
     }
