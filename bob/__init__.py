@@ -1,6 +1,7 @@
 import os
+import logging
 from pathlib import Path
-from flask import Flask
+from flask import Flask, url_for
 from flask_sqlalchemy import SQLAlchemy
 import flask_login
 
@@ -15,6 +16,13 @@ app.config['UPLOAD_DIR'] = os.environ.get(
     'UPLOAD_DIR', '/images'
 )
 
+# Setup logging with gunicorn
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
+
 app.add_url_rule(
     f'{app.config["UPLOAD_DIR"]}/<path:filename>',
     endpoint='images', view_func=app.send_static_file)
@@ -23,48 +31,30 @@ app.add_url_rule(
 # Initialize SQLAlchemy
 db = SQLAlchemy(app)
 
-# Import views (assuming views are defined in a separate file using Blueprints)
-from .views import views_blueprint
-
-# Register Blueprints
-app.register_blueprint(views_blueprint)
-
-# Create database tables
-with app.app_context():
-    db.create_all()
-    if not Path(app.config['UPLOAD_DIR']).exists():
-        (Path(app.config['UPLOAD_DIR'])).mkdir(parents=True)
-
 # Set up login manager
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-users = {'foo@bar.tld': {'password': 'secret'}}
+# Import views (assuming views are defined in a separate file using Blueprints)
+from .views import views_blueprint
+from .auth import auth_blueprint
 
-class User(flask_login.UserMixin):
-    pass
+# Register Blueprints
+app.register_blueprint(views_blueprint)
+app.register_blueprint(auth_blueprint)
+
+# Create database tables
+from .models import Invite, User
+with app.app_context():
+    db.create_all()
+    if not Path(app.config['UPLOAD_DIR']).exists():
+        (Path(app.config['UPLOAD_DIR'])).mkdir(parents=True)
+    # Check if we need to create an invite
+    if not (User.query.all() and Invite.query.all()):
+        invite = Invite(user_limit=1)
+        db.session.add(invite)
+        db.session.commit()
+        app.logger.info(f'Created invite with the id {invite.id}')
 
 
-@login_manager.user_loader
-def user_loader(email):
-    if email not in users:
-        return
 
-    user = User()
-    user.id = email
-    return user
-
-
-@login_manager.request_loader
-def request_loader(request):
-    email = request.form.get('email')
-    if email not in users:
-        return
-
-    user = User()
-    user.id = email
-    return user
-
-@login_manager.unauthorized_handler
-def unauthorized_handler():
-    return 'Unauthorized', 401

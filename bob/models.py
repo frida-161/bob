@@ -1,6 +1,11 @@
-from bob import db
+import uuid
 from geoalchemy2.elements import WKTElement
 from geoalchemy2 import Geometry
+from flask_login import UserMixin
+from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy.dialects.postgresql import UUID
+
+from bob import db
 
 # Association table for the many-to-many relationship between Location and Tag
 location_tag = db.Table('location_tag',
@@ -55,7 +60,7 @@ class Type(db.Model):
     descr = db.Column(db.String)  # Assuming 'descr' stands for 'description'
     locations = db.relationship("Location", back_populates="loc_type")
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -63,17 +68,23 @@ class User(db.Model):
     timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
     role = db.Column(db.String)
     # The invite that this user got invited with
-    invite_id = db.Column(db.Integer, db.ForeignKey('invites.id'))
+    invite_id = db.Column(UUID, db.ForeignKey('invites.id'))
     # The invites that this user has issued
     invites = db.relationship('Invite', backref='issued_by', lazy=True, foreign_keys=[invite_id])
 
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
 class Invite(db.Model):
     __tablename__ = 'invites'
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # The id of the user that issued this  invite
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
-    revoked = db.Column(db.Boolean)
+    revoked = db.Column(db.Boolean, default=False)
     exp_date = db.Column(db.DateTime)
     user_limit = db.Column(db.Integer)
     # The users that were invited by this invite
