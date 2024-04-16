@@ -1,8 +1,8 @@
 """Authentication end points."""
-from flask import abort, flash, redirect, render_template, request, url_for, Blueprint
+from flask import abort, flash, redirect, render_template, request, url_for, Blueprint, current_app
 from flask_login import current_user, login_required, login_user, logout_user
 
-from bob import app, db, login_manager
+from bob import db, login_manager
 from bob.models import User, Invite
 
 auth_blueprint = Blueprint('auth', __name__)
@@ -38,7 +38,7 @@ def login():
         user = User.query.filter_by(name=request.form.get("username")).first()
         if user is None or not user.check_password(request.form.get("password")):
             flash("Invalid username or password")
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
 
         login_user(user)
 
@@ -58,7 +58,7 @@ def logout():
     return redirect(url_for("views.display_map"))
 
 
-@auth_blueprint.route("/register/<string:invite_id>", methods=["GET, POST"])
+@auth_blueprint.route("/register/<string:invite_id>", methods=["GET", "POST"])
 def register(invite_id):
     if current_user.is_authenticated:
         return redirect(url_for("views.display_map"))
@@ -66,8 +66,20 @@ def register(invite_id):
     if not invite:
         return abort(404) # Unavailable
     if request.method == "GET":
-        return render_template("login.html", invite=invite)
+        return render_template("register.html", invite=invite)
     if invite.revoked:
         return abort(410) # GONE
-    return str(invite.id)
+    #TODO test age
+    #TODO test number of invites
+    username = request.form["username"]
+    password = request.form["password"]
+
+    if not (username and password):
+        return abort(400)
+    user = User(name=username) 
+    user.set_password(password)
+    db.session.add(user)
+    db.session.commit()
+    current_app.logger.info(f"create user {username} with id {user.id}")
+    return redirect(url_for("auth.login"))
 

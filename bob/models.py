@@ -63,7 +63,7 @@ class Type(db.Model):
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
+    name = db.Column(db.String, unique=True)
     password = db.Column(db.String)
     timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
     role = db.Column(db.String)

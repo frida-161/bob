@@ -15,6 +15,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_DIR'] = os.environ.get(
     'UPLOAD_DIR', '/images'
 )
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'verysecretdonttellanyone')
 
 # Setup logging with gunicorn
 if __name__ != "__main__":

@@ -7,9 +7,6 @@
     <!-- Materialize CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-   crossorigin=""/>
     <!-- PWA -->
     <link rel="manifest" href="{{ url_for('static', filename='manifest.json')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
@@ -17,11 +14,8 @@
     {% endblock %}
 </head>
 <body>
-    <div id="map-container" style="position: relative; height: 100%;">
-        {% block content %}
-        {% endblock %}
-        </div>
-    </div>
+    {% block content %}
+    {% endblock %}
     <!-- Materialize JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 

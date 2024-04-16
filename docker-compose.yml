@@ -12,6 +12,7 @@ services:
     environment:
       DATABASE_URL: postgresql://username:thisisasavepassword@db:5432/databasename
       UPLOAD_DIR : /images
+      SECRET_KEY: myownspecialsecret
     networks:
       - app-network
 
