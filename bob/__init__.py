@@ -51,11 +51,14 @@ with app.app_context():
     if not Path(app.config['UPLOAD_DIR']).exists():
         (Path(app.config['UPLOAD_DIR'])).mkdir(parents=True)
     # Check if we need to create an invite
-    if not (User.query.all() and Invite.query.all()):
-        invite = Invite(user_limit=1)
-        db.session.add(invite)
-        db.session.commit()
-        app.logger.info(f'Created invite with the id {invite.id}')
+    if not User.query.all(): # no existing users
+        invite = Invite.query.first() # get an invite from db
+        #TODO filter out invalid invites
+        if not invite:
+            invite = Invite(user_limit=1)
+            db.session.add(invite)
+            db.session.commit()
+        app.logger.info(f'Register an account using /register/{invite.id}')
 
 
 
