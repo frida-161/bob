@@ -1,11 +1,16 @@
 
 {% extends 'layout.html' %}
 {% block title %}
-Register
+Invite
+{% endblock %}
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/qrcode.css') }}">
 {% endblock %}
 {% block content %}
 <div class="container">
+ <p>Invite somebody to the party!</p>
  <a href="{{ url_for('auth.register', invite_id=invite.id, _external=True )}}" id="link"></a>
+    <div id="qr-code"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>

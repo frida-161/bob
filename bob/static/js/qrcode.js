@@ -3,7 +3,7 @@ window.onload = function() {
     var link = document.getElementById('link');
 
     // Create a div to hold the QR code
-    var qrCodeElement = document.createElement('div');
+    var qrCodeElement = document.getElementById('qr-code');
     
     // Read the href attribute from the link
     var url = link.href;
@@ -17,7 +17,5 @@ window.onload = function() {
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H
     });
-
-    // Replace the link with the QR code
-    link.parentNode.replaceChild(qrCodeElement, link);
+    qrCodeElement.childNodes()
 }
