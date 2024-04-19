@@ -1,4 +1,6 @@
 """Authentication end points."""
+from datetime import datetime, timedelta
+
 from flask import abort, flash, redirect, render_template, request, url_for, Blueprint, current_app
 from flask_login import current_user, login_required, login_user, logout_user
 
@@ -65,12 +67,11 @@ def register(invite_id):
     invite = Invite.query.get(invite_id)
     if not invite:
         return abort(404) # Unavailable
+    if not invite.is_valid():
+        return abort(410) # GONE TODO: make a nice page
     if request.method == "GET":
         return render_template("register.html", invite=invite)
-    if invite.revoked:
-        return abort(410) # GONE
-    #TODO test age
-    #TODO test number of invites
+
     username = request.form["username"]
     password = request.form["password"]
 
@@ -82,4 +83,14 @@ def register(invite_id):
     db.session.commit()
     current_app.logger.info(f"create user {username} with id {user.id}")
     return redirect(url_for("auth.login"))
+
+@login_required
+@auth_blueprint.route("/invite")
+def invite():
+    # create an Invite for one user
+    invite = Invite(user_limit = 1, exp_date = datetime.now() + timedelta(minutes=1))
+    db.session.add(invite)
+    db.session.commit()
+
+    return render_template("invite.html", invite=invite)
 

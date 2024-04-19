@@ -4,6 +4,7 @@ from geoalchemy2 import Geometry
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from sqlalchemy.dialects.postgresql import UUID
+import datetime
 
 from bob import db
 
@@ -89,3 +90,11 @@ class Invite(db.Model):
     user_limit = db.Column(db.Integer)
     # The users that were invited by this invite
     users = db.relationship('User', backref='invited_by', lazy=True, foreign_keys=[user_id])
+
+    def is_valid(self):
+        """ Return False if the invite is not valid anymore. """
+        return (
+            datetime.datetime.now() < self.exp_date and
+            self.user_limit < len(self.users) and
+            not self.revoked
+        )

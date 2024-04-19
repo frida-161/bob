@@ -13,7 +13,6 @@ from bob.models import Location
 from bob import db, app
 import uuid
 import magic
-import flask_login
 
 import time
 

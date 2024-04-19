@@ -23,6 +23,9 @@ After a productive discussion we came up with a way to safeguard the users locat
 - optional: calculate stats for gamification
 - run a daily job to delete all links between user and location for locations that are older then *n* days (for example after 1 week)
 
+Maybe we can allow Users to invite other users? 
+Since we store with what invite user got invited we can disable them in like a tree?
+
 ## data model
 
 We need to create a comprehensive data model that features all the attributes that are of importance for later analysis of the data.

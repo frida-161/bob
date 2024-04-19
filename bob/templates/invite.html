@@ -1,0 +1,13 @@
+
+{% extends 'layout.html' %}
+{% block title %}
+Register
+{% endblock %}
+{% block content %}
+<div class="container">
+ <a href="{{ url_for('auth.register', invite_id=invite.id, _external=True )}}" id="link"></a>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/qrcode.js')}}"></script>
+{% endblock %}
