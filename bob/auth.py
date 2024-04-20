@@ -77,9 +77,11 @@ def register(invite_id):
 
     if not (username and password):
         return abort(400)
-    user = User(name=username) 
+    user = User(name=username, invited_by_id= invite.user_id)
     user.set_password(password)
+    invite.remaining_invites -= 1
     db.session.add(user)
+    db.session.add(invite)
     db.session.commit()
     current_app.logger.info(f"create user {username} with id {user.id}")
     return redirect(url_for("auth.login"))
@@ -87,8 +89,15 @@ def register(invite_id):
 @login_required
 @auth_blueprint.route("/invite")
 def invite():
+    if not current_user.is_authenticated:
+        return redirect(url_for("auth.login"))
+
     # create an Invite for one user
-    invite = Invite(user_limit = 1, exp_date = datetime.now() + timedelta(minutes=1))
+    invite = Invite(
+        user_id = current_user.id,
+        remaining_invites = 1,
+        exp_date = datetime.now() + timedelta(minutes=15)
+    )
     db.session.add(invite)
     db.session.commit()
 

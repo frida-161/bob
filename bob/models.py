@@ -68,10 +68,13 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String)
     timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
     role = db.Column(db.String)
-    # The invite that this user got invited with
-    invite_id = db.Column(UUID, db.ForeignKey('invites.id'))
-    # The invites that this user has issued
-    invites = db.relationship('Invite', backref='issued_by', lazy=True, foreign_keys=[invite_id])
+    created_invites = db.relationship('Invite', back_populates='user')
+
+    # The user that invited this user
+    invited_by_id =db.Column(db.Integer, db.ForeignKey('users.id'))  # Self-referential foreign key
+    # The users that this user invited
+    invited_users = db.relationship('User', backref='invited_by', remote_side=[id])  # Users that were invited by this user
+
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -84,17 +87,16 @@ class Invite(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     # The id of the user that issued this  invite
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    user = db.relationship('User', back_populates='created_invites')
     timestamp = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))
     revoked = db.Column(db.Boolean, default=False)
     exp_date = db.Column(db.DateTime)
-    user_limit = db.Column(db.Integer)
-    # The users that were invited by this invite
-    users = db.relationship('User', backref='invited_by', lazy=True, foreign_keys=[user_id])
+    remaining_invites = db.Column(db.Integer, default=1)
 
     def is_valid(self):
         """ Return False if the invite is not valid anymore. """
         return (
-            datetime.datetime.now() < self.exp_date and
-            self.user_limit < len(self.users) and
+            (not self.exp_date or datetime.datetime.now() < self.exp_date) and
+            self.remaining_invites > 0 and
             not self.revoked
         )

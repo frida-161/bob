@@ -55,7 +55,7 @@ with app.app_context():
         invite = Invite.query.first() # get an invite from db
         #TODO filter out invalid invites
         if not invite:
-            invite = Invite(user_limit=1)
+            invite = Invite()
             db.session.add(invite)
             db.session.commit()
         app.logger.info(f'Register an account using /register/{invite.id}')
